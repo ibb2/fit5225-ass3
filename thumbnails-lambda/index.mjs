@@ -34,7 +34,7 @@ if (!typeMatch) {
 
 // Check that the image type is supported
 const imageType = typeMatch[1].toLowerCase();
-if (imageType != "jpg" && imageType != "png") {
+if (imageType != "jpg" && imageType != "png" && imageType != "jpeg") {
   console.log(`Unsupported image type: ${imageType}`);
   return;
 }
@@ -68,7 +68,7 @@ const width  = 200;
 
 // Use the sharp module to resize the image and save in a buffer.
 try {    
-  var output_buffer = await sharp(content_buffer).jpeg({quality: 70}).resize(width).toBuffer();
+  var output_buffer = await sharp(content_buffer).resize(width).jpeg({quality: 70}).toBuffer();
 } catch (error) {
   console.log(error);
   return;
