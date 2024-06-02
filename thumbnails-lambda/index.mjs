@@ -68,8 +68,7 @@ const width  = 200;
 
 // Use the sharp module to resize the image and save in a buffer.
 try {    
-  var output_buffer = await sharp(content_buffer).resize(width).toBuffer();
-
+  var output_buffer = await sharp(content_buffer).jpeg({quality: 70}).resize(width).toBuffer();
 } catch (error) {
   console.log(error);
   return;
