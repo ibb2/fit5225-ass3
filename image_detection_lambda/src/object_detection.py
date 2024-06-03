@@ -116,9 +116,11 @@ def do_prediction(image, net, LABELS):
     # TODO Prepare the output as required to the assignment specification
     # ensure at least one detection exists
     detected_objects = []
+    detected_objects_list = []
     if len(idxs) > 0:
         # loop over the indexes we are keeping
         for i in idxs.flatten():
+            detected_objects_list.append(LABELS[classIDs[i]])
             detected_object = {
                 "detected_item(s)": [LABELS[classIDs[i]]],
                 "accuracy": confidences[i],
@@ -128,7 +130,7 @@ def do_prediction(image, net, LABELS):
                 "height": boxes[i][3]
             }
             detected_objects.append(detected_object)
-    return detected_objects
+    return detected_objects_list
 
 
 yolo_path = "/var/task/src/yolo_tiny_configs"

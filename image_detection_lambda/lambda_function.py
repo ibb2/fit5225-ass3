@@ -22,6 +22,8 @@ def lambda_handler(event, context):
                 'statusCode': 400,
                 'message': 'Only jpg/jpeg/png files are allowed'
             }
+        else:
+            print("FIle type permitted")
 
         response = s3_client.get_object(Bucket=src_bucket, Key=src_bucket_key)
         file_stream = response['Body'].read()
@@ -34,11 +36,12 @@ def lambda_handler(event, context):
         try:
             detected_object = object_detection.run(file_stream)
 
+            dst_name = os.path.splitext(dst_key)[0]
             detected_object_dict = {
                 'id': str(uuid4()),
                 'src_s3': f"https://fit5225-ass3-group101-24.s3.amazonaws.com/{src_bucket_key}",
                 'dst_s3': f"https://fit5225-ass3-group101-24-identified-tags.s3.amazonaws.com/{dst_name}",
-                'tags': detected_object[0]["detected_item(s)"]
+                'tags': detected_object
             }
 
             s3_client.put_object(Body=json.dumps(
@@ -46,7 +49,7 @@ def lambda_handler(event, context):
 
             return {
                 'statusCode': 200,
-                'tags': json.dumps(detected_object)
+                'tags': detected_object
             }
 
         except Exception as err:
