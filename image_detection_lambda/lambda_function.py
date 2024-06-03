@@ -34,10 +34,6 @@ def lambda_handler(event, context):
                 'tags': detected_object[0]["detected_item(s)"]
             }
 
-            print(detected_object[0])
-            print(detected_object[0]["detected_item(s)"])
-            print(detected_object_dict)
-
             s3_client.put_object(Body=json.dumps(
                 detected_object_dict), Bucket=dst_bucket, Key=dst_name, ContentType='application/json; charset=utf-8')
 

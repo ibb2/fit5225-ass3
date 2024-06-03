@@ -128,12 +128,6 @@ def do_prediction(image, net, LABELS):
                 "height": boxes[i][3]
             }
             detected_objects.append(detected_object)
-            # detected_objects.append("detected item:{}, accuracy:{}, X:{}, Y:{}, width:{}, height:{}".format(LABELS[classIDs[i]],
-            #                                                                                                 confidences[i],
-            #                                                                                                 boxes[i][0],
-            #                                                                                                 boxes[i][1],
-            #                                                                                                 boxes[i][2],
-            #                                                                                                 boxes[i][3]))
     return detected_objects
 
 
@@ -153,19 +147,10 @@ Weights = get_weights(wpath)
 def run(image_stream):
     try:
         img = cv2.imdecode(np.frombuffer(image_stream, np.uint8), 1)
-        print(1)
-        # print(img)
         image = np.array(img)
-        print(2)
-        # print(image)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        print(4)
-        # print(image)
-        # load the neural net.  Should be local to this method as its multi-threaded endpoint
         nets = load_model(CFG, Weights)
         detected_objects = do_prediction(image, nets, Labels)
-        print(5)
-        # print(detected_objects)
         return detected_objects
 
     except Exception as e:
