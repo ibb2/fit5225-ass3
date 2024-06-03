@@ -1,40 +1,59 @@
 import json
+import os
 import boto3
-from io import StringIO
-import pandas as pd
-from object_detection import run
+import src.object_detection as object_detection
+from uuid import uuid4
 
 s3_client = boto3.client('s3')
 
+
 def lambda_handler(event, context):
 
-    src_bucket = event["Records"][0]["s3"]["bucket"]["name"]
-    src_bucket_key = event["Records"][0]["s3"]["object"]["key"]
-    dst_bucket =  + f"{src_bucket}-identified-tags"
+    src_bucket = event["detail"]["bucket"]["name"]
+    src_bucket_key = event["detail"]["object"]["key"]
+    dst_bucket = f"{src_bucket}-identified-tags"
     dst_key = f"identified-tags-{src_bucket_key}"
 
-    try:        
-        selected_bucket = s3_client.get_object(Bucket=src_bucket, Key=src_bucket_key)
-        body = selected_bucket['Body']
-        decoded_image = body.read().decode('utf-8')
-        response = run(decoded_image)
+    try:
+        response = s3_client.get_object(Bucket=src_bucket, Key=src_bucket_key)
+        file_stream = response['Body'].read()
+        try:
+            s3_client.download_file(
+                src_bucket, 'yolov3-tiny.weights', '/tmp/yolov3-tiny.weights')
+        except Exception as err:
+            print(err)
 
-        detected_object = {
-            'id': event['Records'][0]['s3']['object']['key'],
-            's3': dst_key,
-            'tags': json.dumps(response)
-        }
+        try:
+            detected_object = object_detection.run(file_stream)
 
-        print(detected_object)
-        
-        s3_client.put_object(Body=json.dumps(detected_object),Bucket=dst_bucket, Key=dst_key)
-        
+            dst_name = os.path.splitext(dst_key)[0]
+            detected_object_dict = {
+                'id': str(uuid4()),
+                'src_s3': f"https://fit5225-ass3-group101-24.s3.amazonaws.com/{src_bucket_key}",
+                'dst_s3': f"https://fit5225-ass3-group101-24-identified-tags.s3.amazonaws.com/{dst_name}",
+                'tags': detected_object[0]["detected_item(s)"]
+            }
+
+            print(detected_object[0])
+            print(detected_object[0]["detected_item(s)"])
+            print(detected_object_dict)
+
+            s3_client.put_object(Body=json.dumps(
+                detected_object_dict), Bucket=dst_bucket, Key=dst_name, ContentType='application/json; charset=utf-8')
+
+            return {
+                'statusCode': 200,
+                'tags': json.dumps(detected_object)
+            }
+
+        except Exception as err:
+            return {
+                'statusCode': 300,
+                'error': str(err)
+            }
+
     except Exception as err:
-        print(err)
-        
-    return {
-        'statusCode': 200,
-        'id': event['Records'][0]['s3']['object']['key'],
-        's3': dst_key,
-        'tags': json.dumps(response)
-    }
+        return {
+            'statusCode': 500,
+            'error': str(err)
+        }
