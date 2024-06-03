@@ -15,6 +15,14 @@ def lambda_handler(event, context):
     dst_key = f"identified-tags-{src_bucket_key}"
 
     try:
+
+        file_extension = os.path.splitext(src_bucket_key)[1]
+        if (file_extension != ".jpg" and file_extension != ".jpeg" and file_extension != ".png"):
+            return {
+                'statusCode': 400,
+                'message': 'Only jpg/jpeg/png files are allowed'
+            }
+
         response = s3_client.get_object(Bucket=src_bucket, Key=src_bucket_key)
         file_stream = response['Body'].read()
         try:
@@ -26,7 +34,6 @@ def lambda_handler(event, context):
         try:
             detected_object = object_detection.run(file_stream)
 
-            dst_name = os.path.splitext(dst_key)[0]
             detected_object_dict = {
                 'id': str(uuid4()),
                 'src_s3': f"https://fit5225-ass3-group101-24.s3.amazonaws.com/{src_bucket_key}",
