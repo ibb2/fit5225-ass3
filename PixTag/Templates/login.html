@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - PixTag</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Login</h1>
+    <form method="post">
+        <label>Email:</label><input type="email" name="email" required><br>
+        <label>Password:</label><input type="password" name="password" required><br>
+        <input type="submit" value="Login">
+    </form>
+    <a href="{{ url_for('register') }}">Register</a>
+</body>
+</html>

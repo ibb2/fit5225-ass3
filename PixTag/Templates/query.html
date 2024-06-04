@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Query - PixTag</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Query Images</h1>
+    <form method="post">
+        <label>Tags (comma-separated):</label><input type="text" name="tags" required><br>
+        <input type="submit" value="Query">
+    </form>
+    <div id="results">
+        <!-- Display query results here -->
+    </div>
+    <a href="{{ url_for('upload') }}">Upload Images</a>
+    <a href="{{ url_for('logout') }}">Logout</a>
+</body>
+</html>
