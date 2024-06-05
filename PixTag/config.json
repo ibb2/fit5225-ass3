@@ -2,8 +2,7 @@
     "src_bucket": "fit5225-ass3-group101-24",
     "dst_bucket": "fit5225-ass3-group101-24-identified-tags",
     "region": "us-east-1",
-    "cognito_region": "ap-southeast-2",
-    "cognito_pool_id": "ap-southeast-2_IfIYreuCf",
-    "cognito_client_id": "5mbrp2s2khiop8nt5vbllfk1rk"
+    "cognito_pool_id": "us-east-1_ZVhpturaj",
+    "cognito_client_id": "61unbnkfics90duekoe364b3vm"
   }
   
