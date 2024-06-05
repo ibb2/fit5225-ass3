@@ -13,12 +13,13 @@ with open('config.json') as config_file:
 S3_BUCKET = config['src_bucket']
 DST_BUCKET = config['dst_bucket']
 S3_REGION = config['region']
-COGNITO_POOL_ID = 'your_cognito_user_pool_id'
-COGNITO_CLIENT_ID = 'your_cognito_app_client_id'
+COGNITO_REGION = config['cognito_region']
+COGNITO_POOL_ID = config['cognito_pool_id']
+COGNITO_CLIENT_ID = config['cognito_client_id']
 
 # Initialize AWS clients
 s3_client = boto3.client('s3', region_name=S3_REGION)
-cognito_client = boto3.client('cognito-idp', region_name=S3_REGION)
+cognito_client = boto3.client('cognito-idp', region_name=COGNITO_REGION)
 
 @app.route('/')
 def home():
