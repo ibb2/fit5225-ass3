@@ -87,7 +87,7 @@ def upload():
                
                     response = s3_client.generate_presigned_post(
                         S3_BUCKET,
-                        file.filename,
+                        f"{session['username']}/{file.filename}",
                         Fields=None,
                         Conditions=None,
                         ExpiresIn=3600
