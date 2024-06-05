@@ -14,6 +14,9 @@ def lambda_handler(event, context):
     dst_bucket = f"{src_bucket}-identified-tags"
     dst_key = f"identified-tags-{src_bucket_key}"
 
+    config_bucket = f"{src_bucket}-configs"
+    config_key = "yolov3-tiny.weights"
+
     try:
 
         file_extension = os.path.splitext(src_bucket_key)[1]
@@ -29,14 +32,20 @@ def lambda_handler(event, context):
         file_stream = response['Body'].read()
         try:
             s3_client.download_file(
-                src_bucket, 'yolov3-tiny.weights', '/tmp/yolov3-tiny.weights')
+                config_bucket, config_key, '/tmp/yolov3-tiny.weights')
         except Exception as err:
             print(err)
 
         try:
             detected_object = object_detection.run(file_stream)
 
-            dst_name = os.path.splitext(dst_key)[0]
+            if detected_object == None:
+                return {
+                    'statusCode': 400,
+                    'message': 'No object detected'
+                }
+            
+            dst_name = os.path.splitext(dst_key)[0] + '.json'
             detected_object_dict = {
                 'id': str(uuid4()),
                 'src_s3': f"https://fit5225-ass3-group101-24.s3.amazonaws.com/{src_bucket_key}",
@@ -45,7 +54,7 @@ def lambda_handler(event, context):
             }
 
             s3_client.put_object(Body=json.dumps(
-                detected_object_dict), Bucket=dst_bucket, Key=dst_name, ContentType='application/json; charset=utf-8')
+                detected_object_dict).encode('utf-8'), Bucket=dst_bucket, Key=dst_name, ContentType='application/json; charset=utf-8')
 
             return {
                 'statusCode': 200,

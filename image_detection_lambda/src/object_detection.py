@@ -74,6 +74,7 @@ def do_prediction(image, net, LABELS):
     boxes = []
     confidences = []
     classIDs = []
+    detected_objects = {}  # Dictionary to store detected objects and their frequencies
 
     # loop over each of the layer outputs
     for output in layerOutputs:
@@ -108,6 +109,11 @@ def do_prediction(image, net, LABELS):
 
                 confidences.append(float(confidence))
                 classIDs.append(classID)
+                                
+                # Update the frequency of the detected object
+                detected_object_name = LABELS[classID]
+                detected_objects[detected_object_name] = detected_objects.get(detected_object_name, 0) + 1
+
 
     # apply non-maxima suppression to suppress weak, overlapping bounding boxes
     idxs = cv2.dnn.NMSBoxes(boxes, confidences, confthres,
@@ -115,22 +121,11 @@ def do_prediction(image, net, LABELS):
 
     # TODO Prepare the output as required to the assignment specification
     # ensure at least one detection exists
-    detected_objects = []
-    detected_objects_list = []
+
     if len(idxs) > 0:
-        # loop over the indexes we are keeping
-        for i in idxs.flatten():
-            detected_objects_list.append(LABELS[classIDs[i]])
-            detected_object = {
-                "detected_item(s)": [LABELS[classIDs[i]]],
-                "accuracy": confidences[i],
-                "x": boxes[i][0],
-                "y": boxes[i][1],
-                "width": boxes[i][2],
-                "height": boxes[i][3]
-            }
-            detected_objects.append(detected_object)
-    return detected_objects_list
+        return detected_objects
+    else:
+        return None
 
 
 yolo_path = "/var/task/src/yolo_tiny_configs"
