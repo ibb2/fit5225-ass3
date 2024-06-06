@@ -51,6 +51,7 @@ def lambda_handler(event, context):
             detected_object_dict = {
                 'id': str(uuid4()),
                 'src_s3': f"https://fit5225-ass3-group101-24.s3.amazonaws.com/{src_bucket_key}",
+                "tb_src_s3": f"https://fit5225-ass3-group101-24-thumbnails.s3.amazonaws.com/thumbnails-{src_bucket_key}",
                 'dst_s3': f"https://fit5225-ass3-group101-24-identified-tags.s3.amazonaws.com/{dst_name}",
                 'tags': detected_object
             }
@@ -66,6 +67,7 @@ def lambda_handler(event, context):
                     'id': str(uuid4()),
                     'email': email,
                     'src_s3': f"https://fit5225-ass3-group101-24.s3.amazonaws.com/{src_bucket_key}",
+                    "tb_src_s3": f"https://fit5225-ass3-group101-24-thumbnails.s3.amazonaws.com/thumbnails-{src_bucket_key}",
                     'dst_s3': f"https://fit5225-ass3-group101-24-identified-tags.s3.amazonaws.com/{dst_name}",
                     'tags': detected_object
                 }

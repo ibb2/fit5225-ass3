@@ -1,3 +1,4 @@
+import base64
 import json
 import logging
 import os
@@ -206,16 +207,52 @@ def query_by_thumbnail():
     return render_template('/query/search/thumbnails.html')
 
 
-@app.route('/query/search/image', methods=['GET'])
+@app.route('/query/search/image', methods=['GET', 'POST'])
 def query_by_image():
     if 'username' not in session:
         return redirect(url_for('login'))
 
+    if request.method == 'POST':
+        uploaded_file = request.files['file']
+
+        if uploaded_file.filename != '' and (uploaded_file.filename[-4:] == '.jpg' or uploaded_file.filename[-5:] == '.jpeg' or uploaded_file.filename[-4:] == '.png'):
+
+            image = {'image': base64.b64encode(
+                uploaded_file.read()).decode('utf-8')}
+
+            file = base64.b64encode(uploaded_file.read()).decode('utf-8')
+
+            headers = {
+                'Authorization': f'Bearer {session['id_token']}',
+            }
+
+            file_content = base64.b64encode(
+                uploaded_file.read()).decode('utf-8')
+            payload = json.dumps({
+                'isBase64Encoded': True,
+                'file': file_content,
+                'filename': uploaded_file.filename
+            })
+
+            similar_images_url = "https://paopwei6pc.execute-api.us-east-1.amazonaws.com/fit5225-ass3-production/search/images"
+
+            # response = requests.post(
+            #     similar_images_url, data=image, headers=headers)
+            response = requests.post(
+                similar_images_url, data=payload, headers=headers)
+
+            print(response.json())
+            print("---------------------------")
+
+            # data = response.json()["similar_images_urls"]
+
+            return render_template('/query/search/images.html', data={})
+
     if request.method == 'GET':
-        return render_template('images.html')
+        return render_template('/query/search/images.html')
 
 
-@app.route('/query/edit/manual-edit', methods=['GET'])
+@ app.route('/query/edit/manual-edit', methods=['GET'])
 def query_edit_data():
     if 'username' not in session:
         return redirect(url_for('login'))
@@ -224,7 +261,7 @@ def query_edit_data():
         return render_template('manual-edit.html')
 
 
-@app.route('/query/image/delete', methods=['GET'])
+@ app.route('/query/image/delete', methods=['GET'])
 def query_delete_data():
     if 'username' not in session:
         return redirect(url_for('login'))
@@ -233,7 +270,7 @@ def query_delete_data():
         return render_template('delete.html')
 
 
-@app.route('/logout')
+@ app.route('/logout')
 def logout():
     session.pop('username', None)
     return redirect(url_for('login'))
