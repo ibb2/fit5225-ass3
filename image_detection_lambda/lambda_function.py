@@ -5,6 +5,8 @@ import src.object_detection as object_detection
 from uuid import uuid4
 
 s3_client = boto3.client('s3')
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('user_detected_objects')
 
 
 def lambda_handler(event, context):
@@ -44,7 +46,7 @@ def lambda_handler(event, context):
                     'statusCode': 400,
                     'message': 'No object detected'
                 }
-            
+
             dst_name = os.path.splitext(dst_key)[0] + '.json'
             detected_object_dict = {
                 'id': str(uuid4()),
@@ -55,6 +57,19 @@ def lambda_handler(event, context):
 
             s3_client.put_object(Body=json.dumps(
                 detected_object_dict).encode('utf-8'), Bucket=dst_bucket, Key=dst_name, ContentType='application/json; charset=utf-8')
+
+            email = src_bucket_key.split("/")[0]
+            print(email)
+
+            table.put_item(
+                Item={
+                    'id': str(uuid4()),
+                    'email': email,
+                    'src_s3': f"https://fit5225-ass3-group101-24.s3.amazonaws.com/{src_bucket_key}",
+                    'dst_s3': f"https://fit5225-ass3-group101-24-identified-tags.s3.amazonaws.com/{dst_name}",
+                    'tags': detected_object
+                }
+            )
 
             return {
                 'statusCode': 200,
