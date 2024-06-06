@@ -1,39 +1,32 @@
+import json  
+
 import boto3
-import json
+import os
 
-aws_region = 'us-east-1'
-boto3.setup_default_session(region_name=aws_region)
-
-s3 = boto3.client('s3')
-dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('PixTagImagesTable')
+s3_client = boto3.client('s3')
 
 def lambda_handler(event, context):
-    request_body = json.loads(event['body'])
-    urls = request_body['urls']
+    image_id = event['queryStringParameters']['imageId']
+    bucket_name = 'your-bucket-name'
+    s3_key = f'images/{image_id}.jpg'
 
-    for url in urls:
-        # Delete image from S3
-        bucket_name, key = extract_bucket_key(url)
-        s3.delete_object(Bucket=bucket_name, Key=key)
-
-        # Delete entry from DynamoDB
-        table.delete_item(Key={'OriginalImage': url})
-
-    return {
-        'statusCode': 200,
-        'body': json.dumps({'message': 'Images deleted successfully'}),
-        'headers': {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+    try:
+        response = s3_client.delete_object(Bucket=bucket_name, Key=s3_key)
+        return {
+            'statusCode': 200,
+            'body': json.dumps({'message': 'Image deleted successfully'}),  
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            }
         }
-    }
-
-def extract_bucket_key(url):
-    parts = url.replace('s3://', '').split('/')
-    bucket_name = parts[0]
-    key = '/'.join(parts[1:])
-    return bucket_name, key
-
-
-
+    except Exception as e:
+        print(f"Error deleting image {image_id}: {str(e)}")
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': 'Failed to delete image'}),  
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            }
+        }
