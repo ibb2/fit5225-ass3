@@ -1,21 +1,63 @@
 import json
+import logging
+
+
+# Configure logging
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 def lambda_handler(event, context):
-    data = event["queryStringParameters"]
+    logger.info(f"Received event: {json.dumps(event)}")
 
-    url_body = "https://fit5225-ass3-group101-24.s3.amazonaws.com/"
-    tb_key_raw = data["thumbnail_url"].split('/', 3)[-1]
-    tb_key = tb_key_raw.replace("%40", "@")
-    src_url = url_body + tb_key[11:]
+    try:
+        # Extract the imageId from the query parameters
+        image_id = event['queryStringParameters']['imageId']
+        logger.info(f"Received imageId: {image_id}")
+    except KeyError as e:
+        logger.error(f"Missing query parameter: {str(e)}")
+        return {
+            'statusCode': 400,
+            'body': json.dumps({'error': 'Missing query parameter: imageId'}),
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            }
+        }
 
-    data = {
-        "src_url": src_url
-    }
+    # Query DynamoDB for the full-size image URL based on imageId
+    try:
+        result = table.get_item(Key={'imageId': image_id})
+        logger.info(f"DynamoDB get_item result: {json.dumps(result)}")
 
-    return {
-        "isBase64Encoded": True,
-        "statusCode": 200,
-        "headers": {'Content-Type': 'application/json'},
-        "body": json.dumps(data)
-    }
+        if 'Item' not in result:
+            logger.warning(f"Image not found for imageId: {image_id}")
+            return {
+                'statusCode': 404,
+                'body': json.dumps({'error': 'Image not found'}),
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                }
+            }
+
+        original_image_url = result['Item']['OriginalImage']
+        logger.info(f"Found original image URL: {original_image_url}")
+        return {
+            'statusCode': 200,
+            'body': json.dumps({'link': original_image_url}),
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            }
+        }
+    except Exception as e:
+        logger.error(f"Exception occurred: {str(e)}")
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': str(e)}),
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            }
+        }
