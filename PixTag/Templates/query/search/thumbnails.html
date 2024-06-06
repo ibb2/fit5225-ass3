@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Search Images - PixTag</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <h1>Search for image via thumbnail</h1>
+    <form method="post">
+        <label>thumbnail url: <input type="text" name="thumbnail-url" required> <input type="submit" value="Search"></label>
+    </form>
+    <div id="results">
+        <!-- Display query results here -->
+         <h2>Results</h2>
+        {% if data %}
+        <p>full size image: {{ data }}</p>
+        {% else %}
+        <p>No results found.</p>
+        {% endif %}
+    </div>
+    <a href="{{ url_for('upload') }}">Upload Images</a>
+    <a href="{{ url_for('query') }}">Query Directory</a>
+    <a href="{{ url_for('logout') }}">Logout</a>
+</body>
+
+</html>

@@ -2,9 +2,13 @@ import json
 
 
 def lambda_handler(event, context):
-    thumbnail_urls = json.loads(event['body'])['thumbnail_urls']
+    data = event["queryStringParameters"]
 
-    src_url = thumbnail_urls.slice(10)
+    url_body = "https://fit5225-ass3-group101-24.s3.amazonaws.com/"
+    tb_key_raw = data["thumbnail_url"].split('/', 3)[-1]
+    tb_key = tb_key_raw.replace("%40", "@")
+    src_url = url_body + tb_key[11:]
+
     data = {
         "src_url": src_url
     }

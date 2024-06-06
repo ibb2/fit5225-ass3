@@ -179,30 +179,31 @@ def query_by_thumbnail():
         return redirect(url_for('login'))
 
     if request.method == 'POST':
-        tags = request.form['tags'].split(',')
-        print(tags)
+        thumbnail_url = request.form['thumbnail-url'].split(',')
 
-        credentials = boto3.Session().get_credentials()
-        auth = AWS4Auth(credentials.access_key, credentials.secret_key,
-                        S3_REGION, 'execute-api', session_token=credentials.token)
+        # credentials = boto3.Session().get_credentials()
+        # auth = AWS4Auth(credentials.access_key, credentials.secret_key,
+        #                 S3_REGION, 'execute-api', session_token=credentials.token)
 
-        params = {}
-
-        for i in range(len(tags)):
-            params[f'tag{i+1}'] = tags[i]
+        params = {
+            "thumbnail_url": thumbnail_url[0]
+        }
 
         headers = {
             'Authorization': f'Bearer {session['id_token']}'
         }
 
-        get_tags_url = "https://paopwei6pc.execute-api.us-east-1.amazonaws.com/fit5225-ass3-production/search"
+        get_tags_url = "https://paopwei6pc.execute-api.us-east-1.amazonaws.com/fit5225-ass3-production/search/thumbnails"
 
         response = requests.get(
             get_tags_url, headers=headers, params=params)
 
-        data = response.json()["links"]
+        print(response.json())
+        print("---------------------------")
+        data = response.json()["src_url"]
 
-    return render_template('query.html', data=data)
+        return render_template('/query/search/thumbnails.html', data=data)
+    return render_template('/query/search/thumbnails.html')
 
 
 @app.route('/query/search/image', methods=['GET'])
