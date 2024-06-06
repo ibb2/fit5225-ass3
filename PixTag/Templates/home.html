@@ -7,6 +7,13 @@
 <body>
     <h1>Welcome to PixTag</h1>
     <!-- <a href="{{ url_for('register') }}">Register</a> -->
-    <a href="{{ url_for('login') }}">Login</a>
+    {% if data.loggedIn %}
+        <a href="{{ url_for('upload') }}">Upload Images</a>
+        <a href="{{ url_for('query') }}">Query Directory</a>
+        <a href="{{ url_for('settings') }}">Account Settings</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+    {% endif %}
 </body>
 </html>

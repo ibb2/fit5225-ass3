@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Account Setting - PixTag</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <h1>Account Settings</h1>
+    <h2>Subscribe to tags</h2>
+    <form method="post" action="" enctype="multipart/form-data">
+            <label>Tags</label>
+            <p><input type="text" name="subscribe" aria-hidden="true"></p>
+            <p><input type="submit" value="Subscribe"></p>
+    </form>
+    <!-- <form method="post" action="" enctype="multipart/form-data">
+        <label>Tags</label>
+        <p><input type="text" name="tags"></p>
+        <p><input type="submit" value="Submit"></p>
+    </form> -->
+    <div id="results">
+        <!-- Display query results here -->
+        <h2>Results</h2>
+        {% if data %}
+        <ul>
+            {% for url in data %}
+            <li>{{ url }}</li>
+            {% endfor %}
+
+        </ul>
+        {% else %}
+        <p>No results found.</p>
+        {% endif %}
+    </div>
+    <a href="{{ url_for('upload') }}">Upload Images</a>
+    <a href="{{ url_for('query') }}">Query Directory</a>
+    <a href="{{ url_for('home') }}">Home</a>
+    <a href="{{ url_for('logout') }}">Logout</a>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class=flashes>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+    {% block body %}{% endblock %}
+
+</body>
+
+</html>

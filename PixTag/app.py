@@ -5,7 +5,7 @@ import os
 import boto3
 import requests
 
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 
 from botocore.exceptions import NoCredentialsError
 from requests_aws4auth import AWS4Auth
@@ -23,15 +23,23 @@ S3_REGION = config['region']
 COGNITO_POOL_ID = config['cognito_pool_id']
 COGNITO_CLIENT_ID = config['cognito_client_id']
 QUERY_API = config['api_key']
+SNS_TOPIC_ARN = config['sns_topic_arn']
 
 # Initialize AWS clients
 s3_client = boto3.client('s3', region_name=S3_REGION)
 cognito_client = boto3.client('cognito-idp', region_name=S3_REGION)
+sns_client = boto3.client('sns', region_name=S3_REGION)
 
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+
+    if 'username' not in session:
+        loggedIn = False
+    else:
+        loggedIn = True
+
+    return render_template('home.html', data={"loggedIn": loggedIn})
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -131,6 +139,40 @@ def upload():
             except NoCredentialsError:
                 return 'Credentials not available'
     return render_template('upload.html')
+
+
+@app.route('/settings', methods=['GET', 'POST'])
+def settings():
+
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+
+        tags = request.form['subscribe'].split(', ')
+
+        subscribe_url = "https://paopwei6pc.execute-api.us-east-1.amazonaws.com/fit5225-ass3-production/subscribe"
+
+        headers = {
+            'Authorization': f'Bearer {session['id_token']}'
+        }
+
+        params = {
+            "username": session['username'],
+        }
+
+        for i in range(len(tags)):
+            params[f'tag{i+1}'] = tags[i]
+
+        response = requests.get(subscribe_url, headers=headers, params=params)
+        print(response.json())
+
+        if response.status_code == 200:
+            flash('Subscription request sent. Please check your email to confirm.')
+        else:
+            flash("Failed to send subscription request.")
+
+    return render_template('settings.html')
 
 
 @app.route('/query', methods=['GET'])
