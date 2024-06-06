@@ -3,7 +3,7 @@
 // Initialize AWS SDK
 AWS.config.region = 'us-east-1'; 
 AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-    IdentityPoolId: 'us-east-1:1b026943-879e-4545-870c-88c166b51811',
+    IdentityPoolId: 'us-east-1:1773050f-419e-4635-b66b-a19873531f54',
 });
 
 // Get credentials asynchronously
@@ -23,8 +23,8 @@ document.getElementById('signup-form').addEventListener('submit', function(event
 
     // Configure user pool data
     var poolData = {
-        UserPoolId: 'us-east-1_DpapndWLE', 
-        ClientId: '7otv9qv5hiuurdqvvs7rj2nebi' 
+        UserPoolId: 'us-east-1_Ul6owkYSi', 
+        ClientId: '15amp79g0ei0a2ij5ud0aalrgi' 
     };
 
     var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
@@ -68,8 +68,8 @@ document.getElementById('signin-form').addEventListener('submit', function(event
 
     // Configure user pool data
     var poolData = {
-        UserPoolId: 'us-east-1_DpapndWLE', 
-        ClientId: '7otv9qv5hiuurdqvvs7rj2nebi' 
+        UserPoolId: 'us-east-1_Ul6owkYSi', 
+        ClientId: '15amp79g0ei0a2ij5ud0aalrgi' 
     };
 
     var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
