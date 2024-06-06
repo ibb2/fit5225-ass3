@@ -10,7 +10,10 @@
         <label>Email:</label><input type="email" name="email" required><br>
         <label>Password:</label><input type="password" name="password" required><br>
         <input type="submit" value="Login">
+        <!-- <a href="https://fit5225-ass3-group101.auth.us-east-1.amazoncognito.com/signup?client_id=3i7hbl2ve05jgjmvu6d33qgsaf&response_type=code&scope=aws.cognito.signin.user.admin+email+openid+phone+profile&redirect_uri=https://localhost:5000/upload">Register</a>
+        <a href="https://fit5225-ass3-group101.auth.us-east-1.amazoncognito.com/login?client_id=3i7hbl2ve05jgjmvu6d33qgsaf&response_type=code&scope=aws.cognito.signin.user.admin+email+openid+phone+profile&redirect_uri=https%3A%2F%2Flocalhost%3A5000%2Fupload">Login</a> -->
     </form>
     <a href="{{ url_for('register') }}">Register</a>
+    <a href="{{ url_for('login') }}">Login</a>
 </body>
 </html>

@@ -5,31 +5,37 @@ aws_region = 'us-east-1'
 boto3.setup_default_session(region_name=aws_region)
 
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('PixTagImagesTable')
+table = dynamodb.Table('user_detected_objects')
+
 
 def lambda_handler(event, context):
-    tags = event['queryStringParameters']['tags'].split(',')
+    # Extract tags from queryStringParameters
+    tags = []
+    for key in event.get("queryStringParameters", {}).keys():
+        if key.startswith("tag"):
+            tags.append(event["queryStringParameters"][key])
 
     # Query DynamoDB for images with all specified tags
     response = table.scan(
-        FilterExpression=build_filter_expression(tags)
+        FilterExpression=build_filter_expression(tags),
+        ExpressionAttributeValues={
+            f':tag{i}': tag for i, tag in enumerate(tags)
+        }
     )
 
     # Extract URLs of matching images
-    image_urls = [item['OriginalImage'] for item in response['Items']]
+    image_urls = [item['src_s3'] for item in response['Items']]
 
     return {
-        'statusCode': 200,
-        'body': json.dumps({'links': image_urls}),
-        'headers': {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-        }
+        "isBase64Encoded": True,
+        "statusCode": 200,
+        "headers": {"Content-Type": "application/json"},
+        "body": json.dumps({'links': image_urls})
     }
+
 
 def build_filter_expression(tags):
     filters = []
-    for tag in tags:
-        filters.append('contains(Tags, :tag{})')
+    for i in range(len(tags)):
+        filters.append(f'contains(tags, :tag{i})')
     return ' and '.join(filters)
-
