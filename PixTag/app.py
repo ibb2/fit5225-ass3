@@ -164,6 +164,8 @@ def settings():
         for i in range(len(tags)):
             params[f'tag{i+1}'] = tags[i]
 
+        print(params)
+
         response = requests.get(subscribe_url, headers=headers, params=params)
         print(response.json())
 
