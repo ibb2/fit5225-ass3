@@ -213,6 +213,7 @@ def query_by_tags():
             get_tags_url, headers=headers, params=params)
 
         data = response.json()["links"]
+        print(data)
 
         return render_template('/query/search/tags.html', data=data)
     return render_template('/query/search/tags.html')
