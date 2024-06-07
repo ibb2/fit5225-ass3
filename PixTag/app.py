@@ -307,13 +307,28 @@ def query_edit_data():
         return render_template('manual-edit.html')
 
 
-@ app.route('/query/image/delete', methods=['GET'])
+@ app.route('/query/images/delete', methods=['GET', 'POST', 'DELETE'])
 def query_delete_data():
     if 'username' not in session:
         return redirect(url_for('login'))
 
+    if request.method == "DELETE" or request.method == 'POST':
+
+        delete_url = "https://paopwei6pc.execute-api.us-east-1.amazonaws.com/fit5225-ass3-production/delete/image"
+        thumbnail = request.form['delete']
+        email = session['username']
+
+        headers = {
+            'Authorization': f'Bearer {session['id_token']}',
+        }
+
+        response = requests.delete(
+            delete_url, params={'email': email, 'thumbnail': thumbnail}, headers=headers)
+        print(response.json())
+        return render_template('/query/images/delete.html')
+
     if request.method == 'GET':
-        return render_template('delete.html')
+        return render_template('/query/images/delete.html')
 
 
 @ app.route('/logout')
