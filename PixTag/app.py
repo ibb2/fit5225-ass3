@@ -298,13 +298,34 @@ def query_by_image():
         return render_template('/query/search/images.html')
 
 
-@ app.route('/query/edit/manual-edit', methods=['GET'])
+@ app.route('/query/edit/manual-edit', methods=['GET', 'POST'])
 def query_edit_data():
     if 'username' not in session:
         return redirect(url_for('login'))
 
-    if request.method == 'GET':
-        return render_template('manual-edit.html')
+    if request.method == "POST":
+        edit_url = "https://paopwei6pc.execute-api.us-east-1.amazonaws.com/fit5225-ass3-production/manual-tagging"
+
+        urls = request.form['urls'].split(',')
+        type = request.form['type']
+        tags = request.form['tags'].split(',')
+
+        headers = {
+            'Authorization': f'Bearer {session['id_token']}',
+        }
+
+        data = {
+            'urls': urls,
+            'type': int(type),
+            'tags': tags
+        }
+
+        response = requests.post(
+            edit_url, headers=headers, data=json.dumps(data))
+
+        print(response.json())
+
+    return render_template('/query/edit/manual-edit.html', data={})
 
 
 @ app.route('/query/images/delete', methods=['GET', 'POST', 'DELETE'])
