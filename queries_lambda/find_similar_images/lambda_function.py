@@ -1,78 +1,91 @@
-import base64
-import boto3
 import json
+import base64
+import os
+import boto3
+from botocore.exceptions import ClientError
 import src.object_detection as object_detection
-from boto3.dynamodb.conditions import Key, Attr
-from requests_toolbelt.multipart import decoder
-
-
-aws_region = 'us-east-1'
-boto3.setup_default_session(region_name=aws_region)
 
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('user_detected_objects')
+user_table = dynamodb.Table('user_detected_objects')
 
-
-# def lambda_handler(event, context):
-
-#     detected_objects = object_detection.run(event['body'])
-
-#     # Perform the scan operation with the filter expression
-#     filter_expression = Attr('tags').contains(detected_objects)
-#     response = table.scan(FilterExpression=filter_expression)
-
-#     # while 'LastEvaluatedKey' in response:
-#     #     response = table.scan(FilterExpression=filter_expression,
-#     #                           ExclusiveStartKey=response['LastEvaluatedKey'])
-#     #     items.extend(response['Items'])
-
-#     matched_images = []
-#     for entity in response['Items']:
-#         # Assuming thumbnail URLs follow a specific pattern
-#         thumbnail_url = entity['tb_src_s3']
-#         matched_images.append(thumbnail_url)
-
-#     return {
-#         "isBase64Encoded": True,
-#         "statusCode": 200,
-#         "headers": {"Content-Type": "application/json"},
-#         "body": json.dumps(event['body'])
-#     }
 
 def lambda_handler(event, context):
+    # Initialize logging
+    import logging
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
+    # Extract base64 image data from event
     try:
-        # # Decode the base64-encoded body
-        # decoded_body = base64.b64decode(event['body'])
+        print(event['image'].encode('utf-8'))
+        image_data = event['image'].encode('utf-8')
+        print(f"Image Data: {image_data}")
+        logger.info("Received image data")
+    except KeyError as e:
+        logger.error("Missing image data in the request")
 
-        # # Parse the multipart form data
-        # content_type = event['headers'].get('Content-Type') or event['headers'].get('content-type')
-        # multipart_data = decoder.MultipartDecoder(decoded_body, content_type)
-
-        # # Extract the file from the multipart data
-        # file_content = None
-        # for part in multipart_data.parts:
-        #     content_disposition = part.headers[b'Content-Disposition'].decode()
-        #     if 'filename' in content_disposition:
-        #         file_content = part.content
-        #         break
-
-        # if file_content is None:
-        #     raise ValueError("File not found in the request")
-
-        # Now file_content holds the binary data of the uploaded file
-        # You can process the file as needed, e.g., save to S3, analyze, etc.
-
-        return {
-            "isBase64Encoded": False,
-            "statusCode": 200,
-            "headers": {"Content-Type": "application/json"},
-            "body": json.dumps({"message": "File processed successfully"})
-        }
-
-    except Exception as e:
         return {
             "isBase64Encoded": False,
             "statusCode": 500,
             "headers": {"Content-Type": "application/json"},
-            "body": json.dumps({"error": str(e)})
+            "body": json.dumps({'message': "Missing image data in the request"})
         }
+
+    # Decode base64 image
+    try:
+        decoded_image = base64.b64decode(image_data)
+        print(f"Decoded Images: {decoded_image}")
+        detected_objects = object_detection(decoded_image)
+        logger.info("Image data successfully decoded")
+    except Exception as e:
+        logger.error(f"Failed to decode image data: {str(e)}")
+
+        return {
+            "isBase64Encoded": False,
+            "statusCode": 500,
+            "headers": {"Content-Type": "application/json"},
+            "body": json.dumps({'message': "Failed to decode image data"})
+        }
+
+    # Further processing and interactions with DynamoDB
+    try:
+
+        response = user_table.scan()  # All the items
+
+        s3_urls = []
+
+        for detected_object in detected_objects:
+
+            for item in response["Items"]:
+                for key, value in item.items():
+                    if key == "tags":
+                        if detected_object in value:
+                            s3_urls.append(item["s3_url"])
+                            print("Here")
+
+    except ClientError as e:
+        logger.error(f"DynamoDB client error: {str(e)}")
+
+        return {
+            "isBase64Encoded": False,
+            "statusCode": 500,
+            "headers": {"Content-Type": "application/json"},
+            "body": json.dumps({'message': "DynamoDB client error"})
+        }
+    except Exception as e:
+        logger.error(f"Failed to process image: {str(e)}")
+
+        return {
+            "isBase64Encoded": False,
+            "statusCode": 500,
+            "headers": {"Content-Type": "application/json"},
+            "body": json.dumps({'message': "Failed to process image"})
+        }
+
+    # Successful response
+    return {
+        "isBase64Encoded": False,
+        "statusCode": 200,
+        "headers": {"Content-Type": "application/json"},
+        "body": json.dumps({'message': "Image processed successfully"})
+    }

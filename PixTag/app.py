@@ -263,9 +263,6 @@ def query_by_image():
 
         if uploaded_file.filename != '' and (uploaded_file.filename[-4:] == '.jpg' or uploaded_file.filename[-5:] == '.jpeg' or uploaded_file.filename[-4:] == '.png'):
 
-            image = {'image': base64.b64encode(
-                uploaded_file.read()).decode('utf-8')}
-
             file = base64.b64encode(uploaded_file.read()).decode('utf-8')
 
             headers = {
@@ -274,18 +271,17 @@ def query_by_image():
 
             file_content = base64.b64encode(
                 uploaded_file.read()).decode('utf-8')
-            payload = json.dumps({
-                'isBase64Encoded': True,
-                'file': file_content,
-                'filename': uploaded_file.filename
-            })
+
+            data = {
+                'image': file_content
+            }
 
             similar_images_url = "https://paopwei6pc.execute-api.us-east-1.amazonaws.com/fit5225-ass3-production/search/images"
 
             # response = requests.post(
             #     similar_images_url, data=image, headers=headers)
             response = requests.post(
-                similar_images_url, data=payload, headers=headers)
+                similar_images_url, data=data, headers=headers)
 
             print(response.json())
             print("---------------------------")
