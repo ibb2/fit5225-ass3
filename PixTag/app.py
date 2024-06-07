@@ -212,10 +212,11 @@ def query_by_tags():
         response = requests.get(
             get_tags_url, headers=headers, params=params)
 
-        data = response.json()["links"]
+        data = response.json()['links']
+        unique_url = set(data)
         print(data)
 
-        return render_template('/query/search/tags.html', data=data)
+        return render_template('/query/search/tags.html', data=unique_url)
     return render_template('/query/search/tags.html')
 
 
