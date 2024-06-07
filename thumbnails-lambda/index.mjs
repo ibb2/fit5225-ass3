@@ -12,7 +12,7 @@ const s3 = new S3Client({ region: 'us-east-1' });
 // define the handler function
 export const handler = async (event, context) => {
   console.log("Reading options from event:\n", util.inspect(event, { depth: 5 }));
-  const srcBucket = event.detail.bucket.name;
+  const srcBucket = event.detail.bucket.name[0];
   const srcKey = event.detail.object.key;
   const dstBucket = `${srcBucket}-thumbnails`;
   const dstKey = `thumbnails-${srcKey}`;

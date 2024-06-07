@@ -1,41 +1,37 @@
-<!DOCTYPE html>
-<html>
+{% extends "layout.html" %}
 
-<head>
-    <title>Search Images - PixTag</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
-</head>
+{% block header %}
+<h1 class="text-center">Search image</h1>
+<p class="text-center .initialism">search for images by tags</p>
+{% endblock %}
 
-<body>
-    <h1>Search Images via tag</h1>
+{% block content %}
+<div class="row-1">
     <form method="post">
-        <label>Tags (comma-separated):</label><input type="text" name="tags" required><br>
-        <input type="submit" value="Query">
+        <div class="form-group">
+            <label for="searchViaTags">Tags (comma-seperated)</label>
+            <input type="text" name="tags" class="form-control" id="searchViaTags"
+                placeholder="Enter email">
+        </div>
+        <button type="submit" class="btn btn-primary">Query</button>
     </form>
-    <div id="results">
-        <!-- Display query results here -->
-        {% if data %}
-        <table>
-            <tr>
-                <th>Image</th>
-                <th>URL</th>
-            </tr>
-      
-            {% for url in data %}
-            <tr>
-                <td><img src={{url}}></img></td>
-                <td><p>{{ url }}</p></td>   
-            </tr>
-            {% endfor %}
-         
-        </table>
-        {% else %}
-        <p>No results found.</p>
-        {% endif %}
-    </div>
-    <a href="{{ url_for('upload') }}">Upload Images</a>
-    <a href="{{ url_for('query') }}">Query Directory</a>
-    <a href="{{ url_for('logout') }}">Logout</a>
-</body>
+</div>
+<div class="row-2" id="results">
+    <!-- Display query results here -->
+     <h4 class="text-center">Results</h4>
+    {% if data %}
 
-</html>
+        {% for url in data %}
+            <div class="card">
+                <img src="{{ url }}" class="card-img-top"></img>
+                <div class="card-body">
+                    {{ url}}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+    <p class="text-center">No results found.</p>
+    {% endif %}
+</div>
+{% endblock %}
+

@@ -1,17 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Query - PixTag</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <h1>Query's</h1>
-    <ul>
-        <li><a href="{{ url_for('query_by_tags') }}">Search via tags</a></li>
-        <li><a href="{{ url_for('query_by_thumbnail') }}">Search via thumbnail</a></li>
-        <li><a href="{{ url_for('query_by_image') }}">Search via image</a></li>
-        <li><a href="{{ url_for('query_edit_data') }}">Manually edit tags</a></li>
-        <li><a href="{{ url_for('query_delete_data') }}">Delete Image</a></li>
+{% extends "layout.html" %}
+
+{% block header %}
+<h1 class="text-center">Query Directory</h1>
+{% endblock %}
+
+{% block content %}
+    <ul class="list-group">
+        <li class="list-group-item"><a href="{{ url_for('query_by_tags') }}">Search via tags</a></li>
+        <li class="list-group-item"><a href="{{ url_for('query_by_thumbnail') }}">Search via thumbnail</a></li>
+        <li class="list-group-item"><a href="{{ url_for('query_by_image') }}">Search via image</a></li>
+        <li class="list-group-item"><a href="{{ url_for('query_edit_data') }}">Manually edit tags</a></li>
+        <li class="list-group-item"><a href="{{ url_for('query_delete_data') }}">Delete Image</a></li>
     </ul>
-</body>
-</html>
+{% endblock %}
