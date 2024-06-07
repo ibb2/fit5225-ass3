@@ -1,5 +1,9 @@
 {% extends "layout.html" %}
 
+{% block header %}
+    <h1 class="text-center">Welcome to PixTag</h1>
+{% endblock %}
+
 {% block content %}
     {% if data.loggedIn %}
     <a href="{{ url_for('upload') }}">Upload Images</a>

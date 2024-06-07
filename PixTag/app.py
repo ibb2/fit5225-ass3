@@ -124,7 +124,7 @@ def upload():
                     if http_response.status_code in range(200, 299):
                         print(f'File upload HTTP status code: {
                               http_response.status_code}')
-                        return 'File uploaded successfully!'
+                        flash('File uploaded successfully!')
                     else:
                         # Handle other status codes (4xx, 5xx)
                         error_message = f'File upload failed with status code {
@@ -132,12 +132,13 @@ def upload():
                         if http_response.text:
                             error_message += f'\nResponse: {
                                 http_response.text}'
-                        return error_message
+                        flash(error_message)
+
                 else:
-                    return 'Invalid file type'
+                    flash('Invalid file type')
 
             except NoCredentialsError:
-                return 'Credentials not available'
+                flash('Credentials not available')
     return render_template('upload.html')
 
 

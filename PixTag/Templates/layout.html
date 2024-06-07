@@ -46,10 +46,23 @@
         </div>
     </nav>
 
-    <h1 class="text-center">Welcome to PixTag</h1>
-
-    {% block content %}
+    {% block header %} 
     {% endblock %}
+
+    <div class="container d-flex justify-content-center">
+        <div class="col"></div>
+        <div class="col-5">
+            <div class="row"></div> 
+            <div class="row-5 align-items-center">
+                {% block content %}
+                {% endblock %}
+            </div>
+            <div class="row">
+            </div>
+        </div>
+        <div class="col"></div>
+
+    </div>
 </body>
 
 </html>
