@@ -122,8 +122,6 @@ def upload():
 
                     # Successful status codes (2xx)
                     if http_response.status_code in range(200, 299):
-                        print(f'File upload HTTP status code: {
-                              http_response.status_code}')
                         flash('File uploaded successfully!')
                     else:
                         # Handle other status codes (4xx, 5xx)
