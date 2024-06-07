@@ -272,9 +272,7 @@ def query_by_image():
             file_content = base64.b64encode(
                 uploaded_file.read()).decode('utf-8')
 
-            data = {
-                'image': file_content
-            }
+            data = file_content
 
             similar_images_url = "https://paopwei6pc.execute-api.us-east-1.amazonaws.com/fit5225-ass3-production/search/images"
 
